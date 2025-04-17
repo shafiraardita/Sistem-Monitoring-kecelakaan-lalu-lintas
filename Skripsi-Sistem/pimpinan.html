@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard pimpinan - Sistem Monitoring</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <span class="dot"></span>
+            <span class="logo-text">Sistem Monitoring</span>
+            <span class="we-are-hiring">We are hiring!</span>
+        </div>
+    </header>
+
+    <div class="container dashboard-page" id="dashboardPage">
+        <div class="sidebar">
+            <div class="profile-section" onclick="showProfilePage()">
+                <img src="Marselino.jpeg" alt="Profile Photo" class="profile-photo" id="sidebar-profile-photo">
+                <span id="profile-username">Username</span>
+            </div>
+            <ul id="sidebarMenu"></ul>
+        </div>
+        <div class="dashboard-content">
+            <div class="header-bar">
+                <button class="logout-btn" onclick="logout()">Logout</button>
+                <div class="user-info">
+                    <span id="username-display"></span>
+                </div>
+            </div>
+            <div class="tab-content" id="home-content">
+                <h3>Selamat Datang di Dashboard</h3>
+                <p>Ini adalah halaman utama dari Sistem Monitoring Evaluasi Kecelakaan Lalu Lintas di Kota Bogor. Anda dapat melihat gambaran umum sistem di sini.</p>
+            </div>
+            <div class="tab-content" id="monitoring-content" style="display: none;">
+                <h3>Monitoring</h3>
+                <p>Monitoring kecelakaan lalu lintas di Kota Bogor</p>
+                <div class="monitoring-data">
+                    <div class="tabs">
+                        <span class="active">Data</span>
+                    </div>
+                    <select id="monthFilter" onchange="updateChart()">
+                        <option value="all">Semua Bulan</option>
+                        <option value="Januari">Januari</option>
+                        <option value="Februari">Februari</option>
+                        <option value="Maret">Maret</option>
+                        <option value="April">April</option>
+                        <option value="Mei">Mei</option>
+                        <option value="Juni">Juni</option>
+                        <option value="Juli">Juli</option>
+                        <option value="Agustus">Agustus</option>
+                        <option value="September">September</option>
+                        <option value="Oktober">Oktober</option>
+                        <option value="November">November</option>
+                        <option value="Desember">Desember</option>
+                    </select>
+                    <select id="yearFilter" onchange="updateChart()">
+                        <option value="all">Semua Tahun</option>
+                        <option value="2023">2023</option>
+                        <option value="2024">2024</option>
+                    </select>
+                </div>
+                <div>
+                    <canvas id="myChart"></canvas>
+                    <div class="download-buttons">
+                        <button onclick="downloadChartAsImage()">Download Grafik (PNG)</button>
+                        <button onclick="downloadChartDataAsExcel()">Download Data (Excel)</button>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-content" id="titikwilayah-content" style="display: none;">
+                <h3>Titik Wilayah</h3>
+                <p>Informasi mengenai titik wilayah rawan kecelakaan di Kota Bogor.</p>
+                <div class="titikwilayah-info">
+                    <p>Titik 1: Kecamatan Bogor Barat</p>
+                    <p>Titik 2: Kecamatan Bogor Selatan</p>
+                    <p>Titik 3: Kecamatan Bogor Tengah</p>
+                    <p>Titik 4: Kecamatan Bogor Timur</p>
+                    <p>Titik 5: Kecamatan Bogor Utara</p>
+                    <p>Titik 6: Kecamatan Tanah Sareal</p>
+                </div>
+            </div>
+            <div class="tab-content" id="evaluasi-content" style="display: none;">
+                <h3>Evaluasi</h3>
+                <p>Evaluasi data kecelakaan lalu lintas untuk meningkatkan keselamatan.</p>
+                <div class="evaluasi-content" id="evaluasiContent"></div>
+            </div>
+            <div class="tab-content" id="laporan-content" style="display: none;">
+                <h3>Laporan Masuk</h3>
+                <p>Lihat dan kelola laporan kecelakaan lalu lintas.</p>
+                <div class="laporan-content">
+                    <div class="inbox-list" id="inboxList"></div>
+                    <div class="report-details" id="reportDetails">
+                        <h4>Detail Laporan</h4>
+                        <div class="form-group">
+                            <label>NIK:</label>
+                            <input type="text" id="reportNik" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Nama Lengkap:</label>
+                            <input type="text" id="reportName" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label>Alamat Kejadian:</label>
+                            <textarea id="reportAddress" readonly rows="3"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Foto Hasil Korban:</label>
+                            <img id="reportPhoto" src="" alt="Foto Korban" style="display: none;">
+                        </div>
+                        <div class="form-group">
+                            <label>Petugas yang Menangani:</label>
+                            <input type="text" id="reportOfficer" readonly placeholder="Belum ditangani">
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="tab-content" id="profile-content" style="display: none;">
+                <h3>Profil Pengguna</h3>
+                <form id="profileForm" class="profile-form">
+                    <div class="form-group">
+                        <label for="profilePhoto">Foto Profil:</label>
+                        <input type="file" id="profilePhoto" name="photo" accept="image/*">
+                        <img id="photoPreview" src="" alt="Preview Foto Profil" style="display: none;">
+                    </div>
+                    <div class="form-group">
+                        <label for="profileUsername">Username:</label>
+                        <input type="text" id="profileUsername" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileName">Nama:</label>
+                        <input type="text" id="profileName" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileEmail">Email:</label>
+                        <input type="email" id="profileEmail" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profileNik">NIK:</label>
+                        <input type="text" id="profileNik" name="nik" required>
+                    </div>
+                    <div class="form-group" id="positionField">
+                        <label for="profilePosition"></label>
+                        <input type="text" id="profilePosition" name="position" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="profilePhone">Nomor Telepon:</label>
+                        <input type="tel" id="profilePhone" name="phone" required>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" class="save-btn">Simpan</button>
+                        <button type="button" class="cancel-btn" onclick="showTab('home')">Batal</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="evaluasiDetailModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle"></h3>
+            <p id="modalDescription"></p>
+            <p><strong>Tanggal:</strong> <span id="modalDate"></span></p>
+            <button class="close-btn" onclick="closeDetailModal()">Tutup</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script>
+        let currentUser = JSON.parse(localStorage.getItem('currentUser')) || null;
+        let myChart;
+        let selectedReportId = null;
+
+        // Data laporan masuk
+        const initialReports = [
+            {
+                id: 1,
+                nik: '1234567890123456',
+                name: 'Budi Santoso',
+                address: 'Jl. Pajajaran No. 10, Bogor',
+                photo: 'https://via.placeholder.com/300x200?text=Foto+Korban+1',
+                officer: '',
+                date: '15 Apr',
+                starred: false
+            },
+            {
+                id: 2,
+                nik: '9876543210987654',
+                name: 'Siti Aminah',
+                address: 'Jl. Raya Bogor KM 45, Bogor',
+                photo: 'https://via.placeholder.com/300x200?text=Foto+Korban+2',
+                officer: '',
+                date: '14 Apr',
+                starred: true
+            },
+            {
+                id: 3,
+                nik: '1122334455667788',
+                name: 'Ahmad Yani',
+                address: 'Jl. Sudirman No. 25, Bogor',
+                photo: 'https://via.placeholder.com/300x200?text=Foto+Korban+3',
+                officer: 'Petugas A',
+                date: '13 Apr',
+                starred: false
+            }
+        ];
+
+        if (!localStorage.getItem('reports')) {
+            localStorage.setItem('reports', JSON.stringify(initialReports));
+        }
+
+        // Data evaluasi
+        const initialEvaluasiData = [
+            {
+                id: 1,
+                title: 'Evaluasi Kecelakaan 2024',
+                description: 'Rata-rata kecelakaan per bulan meningkat. Penyebab utama adalah kecepatan tinggi dan kurangnya perhatian pengendara.',
+                date: '1 Jan 2024 - 31 Dec 2024',
+                image: 'https://via.placeholder.com/150?text=Evaluasi+1'
+            },
+            {
+                id: 2,
+                title: 'Rekomendasi Keselamatan',
+                description: 'Peningkatan rambu lalu lintas dan kampanye kesadaran berkendara aman sangat diperlukan untuk mengurangi angka kecelakaan.',
+                date: '1 Jan 2025 - 31 Mar 2025',
+                image: 'https://via.placeholder.com/150?text=Evaluasi+2'
+            }
+        ];
+
+        if (!localStorage.getItem('evaluasiData')) {
+            localStorage.setItem('evaluasiData', JSON.stringify(initialEvaluasiData));
+        }
+
+        // Data kecelakaan per bulan dan tahun
+        const accidentDataByMonth = {
+            '2023': {
+                'Januari': { total: 7, meninggal: 6, lukaBerat: 1, lukaRingan: 5 },
+                'Februari': { total: 16, meninggal: 6, lukaBerat: 9, lukaRingan: 7 },
+                'Maret': { total: 10, meninggal: 5, lukaBerat: 0, lukaRingan: 10 },
+                'April': { total: 9, meninggal: 3, lukaBerat: 1, lukaRingan: 6 },
+                'Mei': { total: 14, meninggal: 6, lukaBerat: 8, lukaRingan: 9 },
+                'Juni': { total: 10, meninggal: 2, lukaBerat: 7, lukaRingan: 6 },
+                'Juli': { total: 10, meninggal: 8, lukaBerat: 0, lukaRingan: 8 },
+                'Agustus': { total: 9, meninggal: 4, lukaBerat: 4, lukaRingan: 9 },
+                'September': { total: 6, meninggal: 3, lukaBerat: 1, lukaRingan: 3 },
+                'Oktober': { total: 14, meninggal: 5, lukaBerat: 7, lukaRingan: 14 },
+                'November': { total: 6, meninggal: 2, lukaBerat: 1, lukaRingan: 7 },
+                'Desember': { total: 8, meninggal: 2, lukaBerat: 5, lukaRingan: 4 }
+            },
+            '2024': {
+                'Januari': { total: 8, meninggal: 5, lukaBerat: 1, lukaRingan: 6 },
+                'Februari': { total: 6, meninggal: 3, lukaBerat: 0, lukaRingan: 8 },
+                'Maret': { total: 5, meninggal: 3, lukaBerat: 0, lukaRingan: 2 },
+                'April': { total: 12, meninggal: 2, lukaBerat: 6, lukaRingan: 16 },
+                'Mei': { total: 11, meninggal: 4, lukaBerat: 4, lukaRingan: 9 },
+                'Juni': { total: 14, meninggal: 4, lukaBerat: 5, lukaRingan: 12 },
+                'Juli': { total: 11, meninggal: 4, lukaBerat: 7, lukaRingan: 12 },
+                'Agustus': { total: 12, meninggal: 3, lukaBerat: 7, lukaRingan: 11 },
+                'September': { total: 8, meninggal: 2, lukaBerat: 3, lukaRingan: 8 },
+                'Oktober': { total: 14, meninggal: 3, lukaBerat: 3, lukaRingan: 12 },
+                'November': { total: 16, meninggal: 7, lukaBerat: 7, lukaRingan: 17 },
+                'Desember': { total: 9, meninggal: 2, lukaBerat: 5, lukaRingan: 7 }
+            }
+        };
+
+        const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+
+        // Inisialisasi Chart.js
+        function initChart() {
+            const canvas = document.getElementById('myChart');
+            if (canvas) {
+                const ctx = canvas.getContext('2d');
+                myChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: months,
+                        datasets: [
+                            {
+                                label: 'Jumlah Kecelakaan',
+                                data: Array(12).fill(0),
+                                backgroundColor: '#375B85',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Meninggal Dunia',
+                                data: Array(12).fill(0),
+                                backgroundColor: '#F96D62',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Luka Berat',
+                                data: Array(12).fill(0),
+                                backgroundColor: '#FFDD71',
+                                borderWidth: 1
+                            },
+                            {
+                                label: 'Luka Ringan',
+                                data: Array(12).fill(0),
+                                backgroundColor: '#DFEDFF',
+                                borderWidth: 1
+                            }
+                        ]
+                    },
+                    options: {
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Jumlah',
+                                    color: '#000'
+                                },
+                                ticks: {
+                                    color: '#000'
+                                }
+                            },
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Bulan',
+                                    color: '#000'
+                                },
+                                ticks: {
+                                    color: '#000'
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                labels: {
+                                    color: '#000'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Data Kecelakaan 2023-2024',
+                                color: '#000',
+                                font: {
+                                    size: 16
+                                }
+                            }
+                        }
+                    }
+                });
+                updateChart();
+            }
+        }
+
+        // Fungsi untuk memperbarui grafik
+        function updateChart() {
+            if (!myChart) return;
+            const month = document.getElementById('monthFilter')?.value || 'all';
+            const year = document.getElementById('yearFilter')?.value || 'all';
+
+            myChart.data.datasets.forEach(dataset => {
+                dataset.data = Array(12).fill(0);
+            });
+
+            if (month !== 'all' && year !== 'all' && accidentDataByMonth[year] && accidentDataByMonth[year][month]) {
+                const selectedData = accidentDataByMonth[year][month];
+                const monthIndex = months.indexOf(month);
+                myChart.data.datasets[0].data[monthIndex] = selectedData.total;
+                myChart.data.datasets[1].data[monthIndex] = selectedData.meninggal;
+                myChart.data.datasets[2].data[monthIndex] = selectedData.lukaBerat;
+                myChart.data.datasets[3].data[monthIndex] = selectedData.lukaRingan;
+            } else if (month === 'all' && year !== 'all' && accidentDataByMonth[year]) {
+                months.forEach((month, index) => {
+                    const monthData = accidentDataByMonth[year][month];
+                    myChart.data.datasets[0].data[index] = monthData.total;
+                    myChart.data.datasets[1].data[index] = monthData.meninggal;
+                    myChart.data.datasets[2].data[index] = monthData.lukaBerat;
+                    myChart.data.datasets[3].data[index] = monthData.lukaRingan;
+                });
+            } else if (month === 'all' && year === 'all') {
+                const years = Object.keys(accidentDataByMonth);
+                months.forEach((month, index) => {
+                    let total = 0, meninggal = 0, lukaBerat = 0, lukaRingan = 0;
+                    years.forEach(year => {
+                        const monthData = accidentDataByMonth[year][month];
+                        total += monthData.total;
+                        meninggal += monthData.meninggal;
+                        lukaBerat += monthData.lukaBerat;
+                        lukaRingan += monthData.lukaRingan;
+                    });
+                    myChart.data.datasets[0].data[index] = total / years.length;
+                    myChart.data.datasets[1].data[index] = meninggal / years.length;
+                    myChart.data.datasets[2].data[index] = lukaBerat / years.length;
+                    myChart.data.datasets[3].data[index] = lukaRingan / years.length;
+                });
+            }
+
+            myChart.options.plugins.title.text = `Data Kecelakaan ${month !== 'all' ? month : 'Semua Bulan'} ${year !== 'all' ? year : '2023-2024'}`;
+            myChart.update();
+        }
+
+        // Fungsi untuk mendownload grafik sebagai PNG
+        function downloadChartAsImage() {
+            const canvas = document.getElementById('myChart');
+            const link = document.createElement('a');
+            link.href = canvas.toDataURL('image/png');
+            link.download = 'grafik_kecelakaan.png';
+            link.click();
+        }
+
+        // Fungsi untuk mendownload data grafik sebagai Excel (XLSX)
+        function downloadChartDataAsExcel() {
+            const month = document.getElementById('monthFilter')?.value || 'all';
+            const year = document.getElementById('yearFilter')?.value || 'all';
+            let data = [];
+
+            if (month !== 'all' && year !== 'all' && accidentDataByMonth[year] && accidentDataByMonth[year][month]) {
+                const selectedData = accidentDataByMonth[year][month];
+                data.push({
+                    Bulan: month,
+                    Tahun: year,
+                    'Jumlah Kecelakaan': selectedData.total,
+                    'Meninggal Dunia': selectedData.meninggal,
+                    'Luka Berat': selectedData.lukaBerat,
+                    'Luka Ringan': selectedData.lukaRingan
+                });
+            } else if (month === 'all' && year !== 'all' && accidentDataByMonth[year]) {
+                months.forEach(month => {
+                    const monthData = accidentDataByMonth[year][month];
+                    data.push({
+                        Bulan: month,
+                        Tahun: year,
+                        'Jumlah Kecelakaan': monthData.total,
+                        'Meninggal Dunia': monthData.meninggal,
+                        'Luka Berat': monthData.lukaBerat,
+                        'Luka Ringan': monthData.lukaRingan
+                    });
+                });
+            } else if (month === 'all' && year === 'all') {
+                const years = Object.keys(accidentDataByMonth);
+                months.forEach(month => {
+                    years.forEach(year => {
+                        const monthData = accidentDataByMonth[year][month];
+                        data.push({
+                            Bulan: month,
+                            Tahun: year,
+                            'Jumlah Kecelakaan': monthData.total,
+                            'Meninggal Dunia': monthData.meninggal,
+                            'Luka Berat': monthData.lukaBerat,
+                            'Luka Ringan': monthData.lukaRingan
+                        });
+                    });
+                });
+            }
+
+            const worksheet = XLSX.utils.json_to_sheet(data);
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, 'Data Kecelakaan');
+            XLSX.writeFile(workbook, 'data_kecelakaan.xlsx');
+        }
+
+        // Fungsi untuk menampilkan daftar laporan
+        function renderInbox() {
+            const inboxList = document.getElementById('inboxList');
+            const reports = JSON.parse(localStorage.getItem('reports')) || [];
+            inboxList.innerHTML = '';
+
+            if (reports.length === 0) {
+                inboxList.innerHTML = '<p style="padding: 15px; color: #5f6368;">Tidak ada laporan masuk.</p>';
+                return;
+            }
+
+            reports.forEach(report => {
+                const item = document.createElement('div');
+                item.classList.add('inbox-item');
+                item.innerHTML = `
+                    <input type="checkbox">
+                    <span class="star ${report.starred ? 'active' : ''}" onclick="toggleStar(${report.id}, event)">★</span>
+                    <div class="item-content" onclick="toggleReportDetails(${report.id})">
+                        <span class="name">${report.name}</span>
+                        <span class="date">${report.date}</span>
+                    </div>
+                `;
+                inboxList.appendChild(item);
+            });
+
+            const reportDetails = document.getElementById('reportDetails');
+            inboxList.style.width = reportDetails.classList.contains('active') ? '50%' : '100%';
+        }
+
+        // Fungsi untuk toggle bintang (starred)
+        function toggleStar(reportId, event) {
+            event.stopPropagation();
+            let reports = JSON.parse(localStorage.getItem('reports')) || [];
+            const reportIndex = reports.findIndex(r => r.id === reportId);
+            if (reportIndex !== -1) {
+                reports[reportIndex].starred = !reports[reportIndex].starred;
+                localStorage.setItem('reports', JSON.stringify(reports));
+                renderInbox();
+            }
+        }
+
+        // Fungsi untuk toggle detail laporan
+        function toggleReportDetails(reportId) {
+            const reportDetails = document.getElementById('reportDetails');
+            const inboxList = document.getElementById('inboxList');
+            const inboxItems = document.querySelectorAll('.inbox-item');
+
+            if (selectedReportId === reportId) {
+                selectedReportId = null;
+                reportDetails.classList.remove('active');
+                inboxList.style.width = '100%';
+                inboxItems.forEach(item => item.classList.remove('active'));
+            } else {
+                selectedReportId = reportId;
+                showReportDetails(reportId);
+                reportDetails.classList.add('active');
+                inboxList.style.width = '50%';
+
+                inboxItems.forEach(item => item.classList.remove('active'));
+                const activeItem = Array.from(inboxItems).find(item => {
+                    const nameSpan = item.querySelector('.name');
+                    const reports = JSON.parse(localStorage.getItem('reports')) || [];
+                    const report = reports.find(r => r.id === reportId);
+                    return nameSpan.textContent === report.name;
+                });
+                if (activeItem) activeItem.classList.add('active');
+            }
+        }
+
+        // Fungsi untuk menampilkan detail laporan
+        function showReportDetails(reportId) {
+            const reports = JSON.parse(localStorage.getItem('reports')) || [];
+            const report = reports.find(r => r.id === reportId);
+            const reportDetails = document.getElementById('reportDetails');
+
+            if (!report) {
+                reportDetails.classList.remove('active');
+                document.getElementById('inboxList').style.width = '100%';
+                return;
+            }
+
+            document.getElementById('reportNik').value = report.nik;
+            document.getElementById('reportName').value = report.name;
+            document.getElementById('reportAddress').value = report.address;
+            document.getElementById('reportOfficer').value = report.officer || 'Belum ditangani';
+            const photo = document.getElementById('reportPhoto');
+            photo.src = report.photo;
+            photo.style.display = report.photo ? 'block' : 'none';
+        }
+
+        // Fungsi untuk menampilkan kotak evaluasi
+        function renderEvaluasi() {
+            const evaluasiContent = document.getElementById('evaluasiContent');
+            const evaluasiData = JSON.parse(localStorage.getItem('evaluasiData')) || [];
+            evaluasiContent.innerHTML = '';
+
+            if (evaluasiData.length === 0) {
+                evaluasiContent.innerHTML = '<p style="padding: 15px; color: #5f6368;">Tidak ada data evaluasi.</p>';
+                return;
+            }
+
+            evaluasiData.forEach((item, index) => {
+                const card = document.createElement('div');
+                card.classList.add('evaluasi-card');
+                if (index % 2 === 1) card.classList.add('orange');
+                card.innerHTML = `
+                    <div class="evaluasi-card-content">
+                        <h4>${item.title}</h4>
+                        <p>${item.description}</p>
+                        <div class="date">${item.date}</div>
+                        <button class="more-about-btn" onclick="openDetailModal(${item.id})">More About</button>
+                    </div>
+                `;
+                evaluasiContent.appendChild(card);
+            });
+        }
+
+        // Fungsi untuk membuka modal detail evaluasi
+        function openDetailModal(evaluasiId) {
+            const evaluasiData = JSON.parse(localStorage.getItem('evaluasiData')) || [];
+            const evaluasi = evaluasiData.find(item => item.id === evaluasiId);
+            if (!evaluasi) return;
+
+            const modal = document.getElementById('evaluasiDetailModal');
+            document.getElementById('modalTitle').textContent = evaluasi.title;
+            document.getElementById('modalDescription').textContent = evaluasi.description;
+            document.getElementById('modalDate').textContent = evaluasi.date;
+
+            modal.style.display = 'flex';
+        }
+
+        // Fungsi untuk menutup modal detail
+        function closeDetailModal() {
+            const modal = document.getElementById('evaluasiDetailModal');
+            modal.style.display = 'none';
+        }
+
+        // Fungsi untuk menampilkan sidebar berdasarkan role
+        function renderSidebar(role) {
+            const sidebarMenu = document.getElementById('sidebarMenu');
+            if (!sidebarMenu) return;
+
+            sidebarMenu.innerHTML = '';
+            const profileUsername = document.getElementById('profile-username');
+            const sidebarProfilePhoto = document.getElementById('sidebar-profile-photo');
+            if (profileUsername) {
+                profileUsername.textContent = currentUser ? currentUser.username : 'Guest';
+            }
+            if (sidebarProfilePhoto && currentUser && currentUser.photo) {
+                sidebarProfilePhoto.src = currentUser.photo;
+            }
+
+            const allTabs = [
+                { name: 'Home', id: 'home', visible: true },
+                { name: 'Profil', id: 'profile', visible: true },
+                { name: 'Monitoring', id: 'monitoring', visible: true },
+                { name: 'Titik Wilayah', id: 'titikwilayah', visible: role === 'admin' || role === 'pimpinan' },
+                { name: 'Evaluasi', id: 'evaluasi', visible: true },
+                { name: 'Laporan', id: 'laporan', visible: true },
+            ];
+
+            allTabs.forEach(tab => {
+                if (tab.visible) {
+                    const li = document.createElement('li');
+                    const a = document.createElement('a');
+                    a.href = '#';
+                    a.textContent = tab.name;
+                    a.onclick = () => showTab(tab.id);
+                    if (tab.id === 'home') {
+                        a.classList.add('active');
+                    }
+                    li.appendChild(a);
+                    sidebarMenu.appendChild(li);
+                }
+            });
+        }
+
+        // Fungsi untuk menampilkan tab
+        function showTab(tabId) {
+            const tabContents = document.querySelectorAll('.tab-content');
+            tabContents.forEach(content => {
+                content.style.display = 'none';
+            });
+            const activeTab = document.getElementById(`${tabId}-content`);
+            if (activeTab) {
+                activeTab.style.display = 'block';
+            }
+
+            const menuItems = document.querySelectorAll('#sidebarMenu li a');
+            menuItems.forEach(item => {
+                item.classList.remove('active');
+                if (item.textContent.toLowerCase() === tabId) {
+                    item.classList.add('active');
+                }
+            });
+
+            if (tabId === 'laporan') {
+                renderInbox();
+            } else if (tabId === 'profile') {
+                renderProfileForm();
+            } else if (tabId === 'evaluasi') {
+                renderEvaluasi();
+            } else {
+                selectedReportId = null;
+                const reportDetails = document.getElementById('reportDetails');
+                const inboxList = document.getElementById('inboxList');
+                if (reportDetails) reportDetails.classList.remove('active');
+                if (inboxList) inboxList.style.width = '100%';
+            }
+        }
+
+        // Fungsi untuk menampilkan halaman profil
+        function showProfilePage() {
+            showTab('profile');
+        }
+
+        // Fungsi untuk mengisi form profil
+        function renderProfileForm() {
+            const usernameInput = document.getElementById('profileUsername');
+            const nameInput = document.getElementById('profileName');
+            const emailInput = document.getElementById('profileEmail');
+            const nikInput = document.getElementById('profileNik');
+            const positionInput = document.getElementById('profilePosition');
+            const positionLabel = positionInput.previousElementSibling;
+            const phoneInput = document.getElementById('profilePhone');
+            const photoPreview = document.getElementById('photoPreview');
+
+            if (currentUser) {
+                usernameInput.value = currentUser.username || '';
+                nameInput.value = currentUser.name || '';
+                emailInput.value = currentUser.email || '';
+                nikInput.value = currentUser.nik || '';
+                positionInput.value = currentUser.position || '';
+                phoneInput.value = currentUser.phone || '';
+                
+                if (currentUser.role === 'user') {
+                    positionLabel.textContent = 'Alamat:';
+                } else if (currentUser.role === 'admin' || currentUser.role === 'pimpinan') {
+                    positionLabel.textContent = 'Jabatan:';
+                }
+
+                if (currentUser.photo) {
+                    photoPreview.src = currentUser.photo;
+                    photoPreview.style.display = 'block';
+                } else {
+                    photoPreview.style.display = 'none';
+                }
+            }
+
+            const photoInput = document.getElementById('profilePhoto');
+            photoInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = function(event) {
+                        photoPreview.src = event.target.result;
+                        photoPreview.style.display = 'block';
+                    };
+                    reader.readAsDataURL(file);
+                }
+            });
+        }
+
+        // Simpan perubahan profil
+        const profileForm = document.getElementById('profileForm');
+        if (profileForm) {
+            profileForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const username = document.getElementById('profileUsername').value;
+                const name = document.getElementById('profileName').value;
+                const email = document.getElementById('profileEmail').value;
+                const nik = document.getElementById('profileNik').value;
+                const position = document.getElementById('profilePosition').value;
+                const phone = document.getElementById('profilePhone').value;
+                const photoPreview = document.getElementById('photoPreview');
+
+                if (currentUser) {
+                    currentUser.username = username;
+                    currentUser.name = name;
+                    currentUser.email = email;
+                    currentUser.nik = nik;
+                    currentUser.position = position;
+                    currentUser.phone = phone;
+                    if (photoPreview.src && photoPreview.style.display !== 'none') {
+                        currentUser.photo = photoPreview.src;
+                    }
+
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    document.getElementById('username-display').textContent = 'Pengguna: ' + currentUser.username;
+                    renderSidebar(currentUser.role);
+
+                    alert('Profil berhasil diperbarui!');
+                    showTab('home');
+                }
+            });
+        }
+
+        // Fungsi untuk logout
+        function logout() {
+            const confirmLogout = confirm('Apakah Anda yakin ingin logout?');
+            if (confirmLogout) {
+                currentUser = null;
+                localStorage.removeItem('currentUser');
+                window.location.href = 'index.html';
+            } else {
+                alert('Logout dibatalkan. Anda tetap berada di dashboard.');
+            }
+        }
+
+        // Inisialisasi aplikasi
+        document.addEventListener('DOMContentLoaded', () => {
+            renderSidebar(currentUser ? currentUser.role : 'user');
+            initChart();
+            document.getElementById('username-display').textContent = currentUser ? 'Pengguna: ' + currentUser.username : 'Pengguna: Guest';
+        });
+    </script>
+</body>
+</html>

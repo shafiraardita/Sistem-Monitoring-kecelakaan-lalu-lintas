@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistem Monitoring</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header class="header">
+        <div class="logo">
+            <span class="dot"></span>
+            <span class="logo-text">Sistem Monitoring</span>
+            <span class="we-are-hiring">We are hiring!</span>
+        </div>
+    </header>
+
+    <div class="container login-page" id="loginPage">
+        <div class="content">
+            <h2>Masuk</h2>
+            <button class="google-login" onclick="simulateGoogleLogin()">Masuk Lewat Google</button>
+            <div class="separator">OR</div>
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="text" id="username" placeholder="Username" required>
+                </div>
+                <div class="form-group">
+                    <input type="password" id="password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="start-btn">Masuk</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="scripts/shared.js"></script>
+    <script src="scripts/login.js"></script>
+</body>
+</html>
